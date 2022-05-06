@@ -7,6 +7,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func main() {
@@ -35,12 +36,15 @@ func main() {
 	fmt.Println("Specific:", specific)
 	fmt.Println()
 
+	var wg sync.WaitGroup
+
 	for a := 0; a < len(ipAddrs); a++ {
 		if specific {
 			portsToScan := strings.Split(ports, ",")
 
 			for i := 0; i < len(portsToScan); i++ {
-				checkPortStatus(ipAddrs[a].String(), portsToScan[i])
+				wg.Add(1)
+				go checkPortStatus(ipAddrs[a].String(), portsToScan[i], &wg)
 			}
 
 		} else {
@@ -59,13 +63,16 @@ func main() {
 
 			for i := lowPort; i <= highPort; i++ {
 				strPort := fmt.Sprint(i)
-				go checkPortStatus(ipAddrs[a].String(), strPort)
+				wg.Add(1)
+				go checkPortStatus(ipAddrs[a].String(), strPort, &wg)
 			}
 		}
 	}
+	wg.Wait()
 }
 
-func checkPortStatus(host, port string) bool {
+func checkPortStatus(host string, port string, wg *sync.WaitGroup) bool {
+	defer wg.Done()
 	addr := net.JoinHostPort(host, port)
 
 	conn, err := net.Dial("tcp", addr)
