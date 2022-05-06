@@ -17,7 +17,7 @@ func main() {
 	flag.StringVar(&host, "host", "localhost", "hostname of a scanned host")
 
 	var portRange string
-	flag.StringVar(&portRange, "portrange", "1-1000", "ranged of ports to scan")
+	flag.StringVar(&portRange, "portrange", "1-1000", "range of ports to scan")
 
 	var ports string
 	flag.StringVar(&ports, "ports", "21,22,23,80,443", "specific ports to scan")
